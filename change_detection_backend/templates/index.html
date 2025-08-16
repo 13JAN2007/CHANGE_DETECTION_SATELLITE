@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoStorm - Satellite Change Detection</title>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #f4f4f4;
+background: url('{{ url_for("static", filename="images/nasa-Q1p7bh3SHj8-unsplash.jpg") }}') no-repeat center center fixed;    background-size: cover;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* Overlay for readability */
+body::before {
+    content: "";
+    position: fixed; /* fixed so it covers whole screen */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(40, 40, 40, 0.55);
+    z-index: -1; /* keep overlay behind everything */
+}
+
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(50, 50, 50, 0.7);
+    backdrop-filter: blur(6px);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+header h1 {
+    font-size: 1.8em;
+    color: #e0e0e0;
+    font-weight: bold;
+}
+
+#navigation {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.navbutton {
+    padding: 0.4rem 1.2rem;
+    background: rgba(200, 200, 200, 0.15);
+    color: #f0f0f0;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.navbutton:hover {
+    background: rgba(220, 220, 220, 0.25);
+    transform: translateY(-2px);
+}
+
+/* Homepage Section */
+.homepage-section {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    padding-top: 100px;
+}
+
+.homepage-content {
+    max-width: 800px;
+    background: rgba(50, 50, 50, 0.6);
+    padding: 2rem;
+    border-radius: 15px;
+    backdrop-filter: blur(8px);
+}
+
+.homepage-logo {
+    font-size: 4em;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #f4f4f4;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+.homepage-content h1 {
+    font-size: 2.2em;
+    margin-bottom: 1rem;
+    color: #f4f4f4;
+}
+
+.homepage-content p {
+    font-size: 1.2em;
+    margin-bottom: 2rem;
+    color: #d0d0d0;
+}
+
+.homepage-buttons {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.homepage-buttons button {
+    padding: 0.9rem 2rem;
+    font-size: 1.1em;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    min-width: 180px;
+}
+
+/* Soft grey buttons */
+.upload-btn {
+    background: rgba(255, 255, 255, 0.15);
+    color: #f0f0f0;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.upload-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.demo-btn {
+    background: rgba(200, 200, 200, 0.25);
+    color: #fff;
+}
+
+.demo-btn:hover {
+    background: rgba(200, 200, 200, 0.35);
+}
+
+/* Info Boxes */
+.main-content {
+    margin: 2rem;
+    background: rgba(50, 50, 50, 0.6);
+    border-radius: 15px;
+    padding: 3rem;
+    backdrop-filter: blur(8px);
+    color: #f0f0f0;
+}
+
+.info-box {
+    background: rgba(80, 80, 80, 0.5);
+    padding: 2rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.info-box h3 {
+    color: #d0d0d0;
+}
+
+.info-box p {
+    font-size: 2em;
+    font-weight: bold;
+    color: #fff;
+}
+
+/* Features */
+.features-section h2 {
+    color: #f4f4f4;
+}
+
+.feature-card {
+    background: rgba(60, 60, 60, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #f0f0f0;
+    padding: 2rem;
+    border-radius: 10px;
+    backdrop-filter: blur(6px);
+}
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>GeoStorm</h1>
+        <div id="navigation">
+            <div id="login" class="navbutton">Login</div>
+            <div id="about" class="navbutton">About Us</div>
+        </div>
+    </header>
+
+    <section class="homepage-section">
+        <div class="homepage-content">
+            <div class="homepage-logo">GeoStorm</div>
+            <h1>Advanced Automated Change Detection in Satellite Imagery</h1>
+            <p>Cutting-edge AI technology to monitor environmental changes, urban development, and natural disasters with precision and speed.</p>
+            <div class="homepage-buttons">
+                <button class="upload-btn" onclick="goToChangeDetection()">☁️ Upload Images</button>
+                <button class="demo-btn" onclick="goToChangeDetection()">🔍 View Demo</button>
+            </div>
+        </div>
+    </section>
+
+    <div class="main-content">
+        <div class="info-boxes">
+            <div class="info-box">
+                <h3>Total Images Analyzed</h3>
+                <p>1,247</p>
+            </div>
+            <div class="info-box">
+                <h3>Changes Detected</h3>
+                <p>89</p>
+            </div>
+            <div class="info-box">
+                <h3>Avg Processing Time</h3>
+                <p>2.3s</p>
+            </div>
+            <div class="info-box">
+                <h3>Detection Accuracy</h3>
+                <p>96.7%</p>
+            </div>
+        </div>
+
+        <div class="features-section">
+            <h2>Why Choose GeoStorm?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>🤖 AI-Powered Analysis</h3>
+                    <p>Advanced machine learning algorithms detect even the smallest changes in satellite imagery with unprecedented accuracy.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>⚡ Lightning Fast</h3>
+                    <p>Process large satellite images in seconds, not hours. Get results when you need them.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🎯 Precision Mapping</h3>
+                    <p>Pinpoint exact locations of changes with pixel-level accuracy for detailed analysis.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🌍 Global Coverage</h3>
+                    <p>Monitor changes anywhere on Earth - from urban development to natural disasters.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📊 Easy Visualization</h3>
+                    <p>Clear, intuitive results showing changes in white and unchanged areas in black.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>💾 Export Ready</h3>
+                    <p>Download results in high-quality formats ready for reports and further analysis.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goToChangeDetection() {
+    // Add a smooth transition effect
+    document.body.style.opacity = '0.8';
+    setTimeout(() => {
+        window.location.href = "/change-detection";  // Updated to use Flask route
+    }, 300);
+}
+
+// Navigation event listeners
+document.getElementById('login').addEventListener('click', function() {
+    // You can create a login.html page or handle login here
+    alert('Login functionality - Create login.html or implement authentication');
+});
+
+document.getElementById('about').addEventListener('click', function() {
+    // You can create an about.html page
+    alert('About page - Create about.html with company information');
+});
+
+// Add some interactive effects
+window.addEventListener('load', function() {
+    // Animate info boxes on load
+    const infoBoxes = document.querySelectorAll('.info-box');
+    infoBoxes.forEach((box, index) => {
+        box.style.opacity = '0';
+        box.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            box.style.transition = 'all 0.6s ease';
+            box.style.opacity = '1';
+            box.style.transform = 'translateY(0)';
+        }, index * 200);
+    });
+
+    // Animate feature cards
+    const featureCards = document.querySelectorAll('.feature-card');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    });
+
+    featureCards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'all 0.6s ease';
+        observer.observe(card);
+    });
+});
+
+// Add smooth scrolling for better UX
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('homepage-buttons')) {
+        e.preventDefault();
+        const target = document.querySelector('.main-content');
+        target.scrollIntoView({ behavior: 'smooth' });
+    }
+});
+    </script>
+</body>
+</html>

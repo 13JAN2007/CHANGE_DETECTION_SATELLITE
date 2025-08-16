@@ -1,0 +1,7 @@
+Flask
+Flask-CORS
+Pillow
+numpy
+torch
+torchvision
+python-dotenv

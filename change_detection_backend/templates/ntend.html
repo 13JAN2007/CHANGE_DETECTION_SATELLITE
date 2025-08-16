@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change Detection</title>
+    <style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+background: url('{{ url_for("static", filename="images/nasa-Q1p7bh3SHj8-unsplash.jpg") }}') no-repeat center center fixed;        background-size: cover;
+        min-height: 100vh;
+    }
+
+    .container {
+        background: rgba(255, 255, 255, 0.85);
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+
+    h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 30px;
+        font-size: 2.5em;
+        background: linear-gradient(45deg, #555, #888);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .upload-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+
+    .upload-box {
+        border: 3px dashed #3a3939;
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        background: rgba(248, 249, 255, 0.9);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        min-height: 200px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .upload-box:hover {
+        border-color: #444;
+        background: rgba(240, 240, 240, 0.95);
+        transform: translateY(-2px);
+    }
+
+    .upload-box.dragover {
+        border-color: #333;
+        background: rgba(230, 230, 230, 0.95);
+        transform: scale(1.02);
+    }
+
+    .upload-box.uploaded {
+        background: rgba(230, 245, 230, 0.95);
+        border-color: #28a745;
+    }
+
+    .upload-icon {
+        font-size: 3em;
+        color: #666;
+        margin-bottom: 15px;
+    }
+
+    .upload-text {
+        color: #444;
+        font-size: 1.1em;
+        margin-bottom: 15px;
+    }
+
+    .file-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .preview-img {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 10px;
+        margin-top: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .detect-btn {
+        background: linear-gradient(45deg, #555, #888);
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        border-radius: 50px;
+        font-size: 1.2em;
+        cursor: pointer;
+        display: block;
+        margin: 0 auto;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(85, 85, 85, 0.4);
+    }
+
+    .detect-btn:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(85, 85, 85, 0.6);
+    }
+
+    .detect-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .loading {
+        display: none;
+        text-align: center;
+        margin: 20px 0;
+        color: #555;
+        font-size: 1.1em;
+    }
+
+    .spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #555;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .result-section {
+        margin-top: 40px;
+        text-align: center;
+        display: none;
+    }
+
+    .result-title {
+        font-size: 1.8em;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .result-img {
+        max-width: 100%;
+        max-height: 500px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        border: 5px solid white;
+    }
+
+    .message {
+        padding: 15px;
+        border-radius: 10px;
+        margin: 20px 0;
+        display: none;
+    }
+
+    .error-message {
+        background: rgba(255, 230, 230, 0.95);
+        color: #d8000c;
+        border: 1px solid #d8000c;
+    }
+
+    .success-message {
+        background: rgba(230, 255, 230, 0.95);
+        color: #4caf50;
+        border: 1px solid #4caf50;
+    }
+
+    .info-message {
+        background: rgba(227, 242, 253, 0.95);
+        color: #1976d2;
+        border: 1px solid #1976d2;
+    }
+
+    .connection-status {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 10px 15px;
+        border-radius: 25px;
+        font-size: 0.9em;
+        font-weight: bold;
+        z-index: 1000;
+    }
+
+    .connection-status.connected {
+        background: #4caf50;
+        color: white;
+    }
+
+    .connection-status.disconnected {
+        background: #f44336;
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .upload-section {
+            grid-template-columns: 1fr;
+        }
+        
+        h1 {
+            font-size: 2em;
+        }
+
+        .connection-status {
+            position: relative;
+            top: auto;
+            right: auto;
+            margin-bottom: 20px;
+        }
+    }
+</style>
+
+</head>
+<body>
+    <div class="connection-status" id="connectionStatus">Checking connection...</div>
+    
+    <div class="container">
+        <h1>🔍 Change Detection</h1>
+        <p style="text-align: center; color: #666; font-size: 1.1em; margin-bottom: 30px;">
+            Upload two images to detect changes between them. The result will show white areas where changes occurred.
+        </p>
+
+        <form id="uploadForm">
+            <div class="upload-section">
+                <div class="upload-box" id="upload1">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">Click or drag to upload<br><strong>Before Image</strong></div>
+                    <input type="file" class="file-input" id="image1" name="image1" accept="image/*" required>
+                    <img class="preview-img" id="preview1" style="display: none;">
+                </div>
+
+                <div class="upload-box" id="upload2">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">Click or drag to upload<br><strong>After Image</strong></div>
+                    <input type="file" class="file-input" id="image2" name="image2" accept="image/*" required>
+                    <img class="preview-img" id="preview2" style="display: none;">
+                </div>
+            </div>
+
+            <button type="submit" class="detect-btn" id="detectBtn" disabled>
+                🚀 Detect Changes
+            </button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div>Processing images... Please wait</div>
+        </div>
+
+        <div class="message error-message" id="errorMessage"></div>
+        <div class="message success-message" id="successMessage"></div>
+        <div class="message info-message" id="infoMessage"></div>
+
+        <div class="result-section" id="resultSection">
+            <h2 class="result-title">🎯 Change Detection Result</h2>
+            <p style="color: #666; margin-bottom: 20px;">
+                White areas indicate detected changes, black areas show no change.
+            </p>
+            <img class="result-img" id="resultImage" alt="Change Detection Result">
+            <p id="percentageChange" style="font-size: 1.2em; color: #333; margin-top: 15px; display: none;"></p>
+            <div style="margin-top: 20px;">
+                <button onclick="downloadResult()" class="detect-btn" style="background: #28a745;">
+                    💾 Download Result
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000';
+        let currentSessionId = null;
+
+        // Connection status
+        function updateConnectionStatus(connected, message = '') {
+            const statusDiv = document.getElementById('connectionStatus');
+            if (connected) {
+                statusDiv.textContent = '✅ Connected';
+                statusDiv.className = 'connection-status connected';
+            } else {
+                statusDiv.textContent = '❌ Disconnected';
+                statusDiv.className = 'connection-status disconnected';
+            }
+        }
+
+        // File upload handling
+        function setupFileInput(inputId, previewId, uploadBoxId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            const uploadBox = document.getElementById(uploadBoxId);
+
+            input.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    handleFileSelect(e.target.files[0], preview, uploadBox, input);
+                }
+            });
+
+            // Drag and drop functionality
+            uploadBox.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadBox.classList.add('dragover');
+            });
+
+            uploadBox.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadBox.classList.remove('dragover');
+            });
+
+            uploadBox.addEventListener('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadBox.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0 && files[0].type.startsWith('image/')) {
+                    // Set the file to the input
+                    const dt = new DataTransfer();
+                    dt.items.add(files[0]);
+                    input.files = dt.files;
+                    
+                    handleFileSelect(files[0], preview, uploadBox, input);
+                } else {
+                    showMessage('Please drop a valid image file.', 'error');
+                }
+            });
+        }
+
+        function handleFileSelect(file, preview, uploadBox, input) {
+            // Clear any previous messages
+            hideAllMessages();
+            
+            // Validate file size (16MB limit)
+            if (file.size > 16 * 1024 * 1024) {
+                showMessage('File is too large. Maximum size is 16MB.', 'error');
+                resetFileInput(input, preview, uploadBox);
+                return;
+            }
+
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/tiff'];
+            if (!allowedTypes.includes(file.type)) {
+                showMessage('Invalid file type. Please upload an image file (JPEG, PNG, GIF, BMP, TIFF).', 'error');
+                resetFileInput(input, preview, uploadBox);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                uploadBox.classList.add('uploaded');
+                
+                // Hide the upload text and icon when image is loaded
+                const uploadIcon = uploadBox.querySelector('.upload-icon');
+                const uploadText = uploadBox.querySelector('.upload-text');
+                if (uploadIcon) uploadIcon.style.display = 'none';
+                if (uploadText) uploadText.style.display = 'none';
+                
+                checkFormReady();
+            };
+            
+            reader.onerror = function() {
+                showMessage('Error reading file. Please try again.', 'error');
+                resetFileInput(input, preview, uploadBox);
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        function resetFileInput(input, preview, uploadBox) {
+            input.value = '';
+            preview.style.display = 'none';
+            preview.src = '';
+            uploadBox.classList.remove('uploaded');
+            
+            const uploadIcon = uploadBox.querySelector('.upload-icon');
+            const uploadText = uploadBox.querySelector('.upload-text');
+            if (uploadIcon) uploadIcon.style.display = 'block';
+            if (uploadText) uploadText.style.display = 'block';
+            
+            checkFormReady();
+        }
+
+        function checkFormReady() {
+            const image1 = document.getElementById('image1').files[0];
+            const image2 = document.getElementById('image2').files[0];
+            const detectBtn = document.getElementById('detectBtn');
+            
+            detectBtn.disabled = !(image1 && image2);
+            
+            if (image1 && image2) {
+                showMessage('Ready to detect changes! Click the detect button.', 'info');
+            }
+        }
+
+        function showMessage(text, type = 'info') {
+            hideAllMessages();
+            
+            let messageDiv;
+            if (type === 'error') {
+                messageDiv = document.getElementById('errorMessage');
+            } else if (type === 'success') {
+                messageDiv = document.getElementById('successMessage');
+            } else {
+                messageDiv = document.getElementById('infoMessage');
+            }
+            
+            messageDiv.textContent = text;
+            messageDiv.style.display = 'block';
+            
+            // Auto-hide after 5 seconds for non-error messages
+            if (type !== 'error') {
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function hideAllMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('infoMessage').style.display = 'none';
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+            document.getElementById('detectBtn').disabled = show || !checkFormValid();
+        }
+
+        function checkFormValid() {
+            const image1 = document.getElementById('image1').files[0];
+            const image2 = document.getElementById('image2').files[0];
+            return image1 && image2;
+        }
+
+        async function detectChanges(formData) {
+            try {
+                showMessage('Uploading and processing images...', 'info');
+                
+                const response = await fetch(`${API_BASE_URL}/detect-changes`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const responseText = await response.text();
+                let result;
+                
+                try {
+                    result = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('Failed to parse response:', responseText);
+                    throw new Error('Server returned invalid response');
+                }
+
+                if (!response.ok) {
+                    throw new Error(result.error || `HTTP error! status: ${response.status}`);
+                }
+
+                if (result.success && result.session_id) {
+                    currentSessionId = result.session_id;
+                    showMessage('Images processed successfully!', 'success');
+                    
+                    // Load the result image
+                    if (result.percentage_change !== null && result.percentage_change !== undefined) {
+    const percentElem = document.getElementById('percentageChange');
+    percentElem.textContent = `Change Area: ${result.percentage_change}%`;
+    percentElem.style.display = 'block';
+}
+
+                    const resultImg = document.getElementById('resultImage');
+                    
+                    resultImg.onerror = function() {
+                        showMessage('Error loading result image. Please try again.', 'error');
+                        document.getElementById('resultSection').style.display = 'none';
+                    };
+                    
+                    resultImg.onload = function() {
+                        document.getElementById('resultSection').style.display = 'block';
+                        setTimeout(() => {
+                            resultImg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 100);
+                    };
+                    
+                    // Construct the image URL correctly
+                    resultImg.src = `${API_BASE_URL}/get-result/${result.session_id}?t=${Date.now()}`;
+                    
+                } else {
+                    throw new Error(result.error || 'Unknown error occurred');
+                }
+            } catch (error) {
+                console.error('Error in detectChanges:', error);
+                
+                let errorMsg = 'Error: ';
+                if (error.message.includes('fetch') || error.name === 'TypeError') {
+                    errorMsg += 'Cannot connect to server. Make sure the Flask server is running on port 5000.';
+                    updateConnectionStatus(false);
+                } else {
+                    errorMsg += error.message;
+                }
+                
+                showMessage(errorMsg, 'error');
+            }
+        }
+
+        function downloadResult() {
+            if (currentSessionId) {
+                try {
+                    const link = document.createElement('a');
+                    link.href = `${API_BASE_URL}/get-result/${currentSessionId}`;
+                    link.download = `change_detection_${currentSessionId}.png`;
+                    link.target = '_blank';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    showMessage('Download started!', 'success');
+                } catch (error) {
+                    showMessage('Error starting download. Please try again.', 'error');
+                }
+            } else {
+                showMessage('No result available to download.', 'error');
+            }
+        }
+
+        // Initialize file inputs
+        setupFileInput('image1', 'preview1', 'upload1');
+        setupFileInput('image2', 'preview2', 'upload2');
+
+        // Form submission
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const img1 = document.getElementById('image1').files[0];
+            const img2 = document.getElementById('image2').files[0];
+            
+            if (!img1 || !img2) {
+                showMessage('Please select both images before submitting.', 'error');
+                return;
+            }
+            
+            // Hide previous results
+            document.getElementById('resultSection').style.display = 'none';
+            currentSessionId = null;
+            
+            const formData = new FormData();
+            formData.append('image1', img1);
+            formData.append('image2', img2);
+            
+            showLoading(true);
+            await detectChanges(formData);
+            showLoading(false);
+        });
+
+        // Test server connection
+        async function testConnection() {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+                
+                const response = await fetch(`${API_BASE_URL}/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.status === 'healthy') {
+                    updateConnectionStatus(true);
+                    console.log('✅ Server connection successful');
+                } else {
+                    throw new Error('Server returned unhealthy status');
+                }
+            } catch (error) {
+                console.error('❌ Connection failed:', error.name === 'AbortError' ? 'Timeout' : error);
+                updateConnectionStatus(false);
+                
+                // Only show error message if not just a timeout on initial load
+                if (error.name !== 'AbortError' || document.getElementById('connectionStatus').textContent !== 'Checking connection...') {
+                    showMessage(`Cannot connect to Flask server. Please ensure it's running on port 5000.`, 'error');
+                }
+            }
+        }
+
+        // Test connection when page loads
+        window.addEventListener('load', () => {
+            testConnection();
+        });
+
+        // Retry connection every 30 seconds if disconnected
+        setInterval(() => {
+            if (document.getElementById('connectionStatus').classList.contains('disconnected')) {
+                testConnection();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

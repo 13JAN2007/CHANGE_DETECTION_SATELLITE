@@ -1,0 +1,345 @@
+body {
+    background-color: #f0f2f5;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+/* Homepage Section Styles */
+.homepage-section {
+    background-image: url('/change_detection_backend/nasa-Q1p7bh3SHj8-unsplash.jpg');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 100px 20px;
+    min-height: 100vh;
+    position: relative;
+}
+
+.homepage-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 1;
+}
+
+.homepage-content {
+    position: relative;
+    z-index: 2;
+}
+
+.homepage-logo {
+    font-size: 2.5em;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.homepage-content h1 {
+    font-size: 2.8em;
+    margin-bottom: 10px;
+    max-width: 800px;
+}
+
+.homepage-content p {
+    font-size: 1.2em;
+    margin-bottom: 30px;
+    max-width: 700px;
+    opacity: 0.8;
+}
+
+.homepage-buttons button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    margin: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: background-color 0.3s ease;
+}
+
+.homepage-buttons button:hover {
+    background-color: #0056b3;
+}
+
+/* Dashboard Section Styles */
+.dashboard-section {
+    display: flex;
+    padding: 20px;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 40px auto;
+}
+
+.sidebar {
+    background-color: #33475b;
+    color: white;
+    padding: 20px;
+    min-width: 250px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-item {
+    margin-bottom: 25px;
+}
+
+.sidebar-item h3 {
+    margin-top: 0;
+    border-bottom: 1px solid #4a637f;
+    padding-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.sidebar-item ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-item li {
+    margin-bottom: 10px;
+    font-size: 0.95em;
+    opacity: 0.8;
+}
+
+.sidebar-item li:hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
+.sidebar-item button {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar-item button:hover {
+    background-color: #0056b3;
+}
+
+.main-content {
+    display: flex;
+    width: 100vw;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #010b14;
+}
+
+.header {
+    background-color: #001f3f;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header .logo {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.header nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.header nav a {
+    color: white;
+    text-decoration: none;
+}
+
+.main-content h1 {
+    margin-top: 0;
+    font-size: 1.8em;
+    color: #1a1a1a;
+}
+
+.info-boxes {
+   display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.info-box {
+   background-color: #10161d;
+   margin: 25px;
+   padding: 25px;
+   border-radius: 8px;
+   border: 1px solid #2c3e50;
+   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.432);
+}
+.info-box:hover {
+    background-color: #031933;
+    cursor: pointer;
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.6);
+}
+
+.info-box h3 {
+    margin: 0 0 10px 0;
+    color: #007bff;
+    font-size: 1.4em;
+}
+
+.info-box p {
+    margin: 0;
+    font-size: 1.8em;
+    font-weight: bold;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.feature-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.feature-card h3 {
+    margin-top: 0;
+    font-size: 1.5em;
+}
+
+.feature-card p {
+    font-size: 0.95em;
+    color: #555;
+}
+
+.feature-card button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+.feature-card button:hover {
+    opacity: 0.9;
+}
+
+.upload-button { background-color: #28a745; }
+.analyze-button { background-color: #007bff; }
+.export-button { background-color: #dc3545; }
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .dashboard-section {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+    }
+}
+header {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    /* filter: blur(10px)  brightness(0.9); */
+    height: 8%;
+    border-bottom: 0px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(0, 0, 0, 0.05); /* Very subtle black tint (5% opacity) */
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(10px); /* For Safari support */
+    flex-direction: row;
+
+}
+header h1 {
+
+     background: linear-gradient(
+        135deg,
+        #00f0ff 0%,    /* bright cyan */
+        #00c8ff 40%,   /* vivid cyan-blue */
+        #00a0ff 70%,   /* strong blue */
+        #ffffff 100%   /* pure white highlight */
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    /* Optional glowing effect */
+    font-size: 1.5em;
+    margin-left: 50px;
+    margin-top: 2%;
+    
+  
+}
+#navigation{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 20%;
+    height: 100%;
+    position: relative;
+    left: 50%;
+    gap: 10%;
+    align-items: center;
+    align-content: center;
+    color: white;
+    font-size: 1.2em;
+
+
+}
+.navbutton {
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    height: 50%;
+    width: 300px;
+    text-align: center;
+    padding: 20px;
+    min-width: 90px;
+
+    
+}
+.navbutton:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Subtle hover effect */
+    color: #00f0ff; /* Change text color on hover */
+    height: 50%;
+    width: 300px;
+
+
+}
+#view-demo {
+    background-color: #fcfcfc;
+    color: black;
+}
+#view-demo:hover {
+    background-color: #060b27; /* Slightly darker on hover */
+    color: #238139; /* Change text color on hover */
+}
